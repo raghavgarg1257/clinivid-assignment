@@ -1,20 +1,19 @@
-const regex = /\<([^)]+)\>/;
+const regex = /<([^<^>]+)>/g;
 
-function regexMatch(regex, string) {
-	const match = regex.exec(string);
-	return match ? match[1] : '';
+function regexMatch(string) {
+	const found = [];
+	while (match = regex.exec(string)) {
+		found.push(match[1]);
+	}
+	return found;
 }
 
 function neutralize(string) {
 	return string || '';
 }
 
-function parseArrowParanthesis(string) {
-	return string.replace(/\>/g, '> ').split(' ').filter(Boolean).map(o => o.replace(/[<>]/g, ''));
-}
-
 function getName(string) {
-	const [ first, middle, last ] = parseArrowParanthesis(string);
+	const [ first, middle, last ] = regexMatch(string);
 	return {
 		first: neutralize(first),
 		middle: neutralize(middle),
@@ -23,12 +22,9 @@ function getName(string) {
 }
 
 function getLocation(string) {
-	console.log("**********************************", string);
-	const index = string.indexOf('>') + 1;
-	const [ long, lat ] = parseArrowParanthesis(regexMatch(regex, string.substring(index)));
-
+	const [ name, long, lat ] = regexMatch(string);
 	return {
-		name: regexMatch(regex, string.substring(0, index)),
+		name: neutralize(name),
 		coords: {
 			long: neutralize(long),
 			lat: neutralize(lat),
@@ -46,31 +42,32 @@ function getProfile(string) {
 	};
 }
 
-function parseProfileString(string) {
+function getFollowers(string) {
+	return string.split('@@').map(record => {
+		// profile should have only 4 parameters and to divide (n) things we need (n-1) dividers
+		if ((record.split('|').length - 1) !== 3 && record[0] === "|") {
+				record = record.substring(1);
+		}
+		return getProfile(record);
+	});
+}
 
-	const parsed = {
-		profile: {},
-		followers: []
-	};
+function parseProfileString(string) {
 
 	console.log("=====================================================");
 	console.log("[parsing] ", string);
 
+	const parsed = {};
 	const [ profile, followers ] = string.split('**');
 
 	// profile
-	const [ profileKey, ...restProfile ] = profile.split('|');
-	parsed[profileKey] = getProfile(restProfile.join('|'));
+	const [ profileKey, ...profileData ] = profile.split('|');
+	parsed[profileKey] = getProfile(profileData.join('|'));
 
 	// followers
-	const index = followers.indexOf('|') + 1;
-	const [ followerKey, restFollowers ] = [ followers.substring(0, index).replace(/\|/g, ''), followers.substring(index) ];
-	parsed[followerKey] = restFollowers.split('@@').map(o => {
-		if (o[0] === '|') {
-			o = o.substring(1);
-		}
-		return getProfile(o);
-	});
+	const followerKeyIndex = followers.indexOf('|') + 1;
+	const [ followerKey, followersData ] = [ followers.substring(0, followerKeyIndex).replace(/\|/g, ''), followers.substring(followerKeyIndex) ];
+	parsed[followerKey] = getFollowers(followersData);
 
 	console.log("[parsed|json]", require('util').inspect(parsed, { depth: null }));
 	console.log("=====================================================");
