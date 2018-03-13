@@ -1,26 +1,33 @@
-var regExp = /\<([^)]+)\>/;
-const regex = /\[ *< _a-zA-Z0-9->+ *\]/;
+const regex = /\<([^)]+)\>/;
+
+function regexMatch(regex, string) {
+	const match = regex.exec(string);
+	return match ? match[1] : '';
+}
+
+function neutralize(string) {
+	return string || '';
+}
 
 function getName(string) {
-	if (!string) {
-		return { first: '', middle: '', last: '' };
-	}
 	const [ first, middle, last ] = string.replace(/\>/g, '> ').split(' ').filter(Boolean).map(o => o.replace(/[<>]/g, ''));
-	return { first, middle, last };
+	return {
+		first: neutralize(first),
+		middle: neutralize(middle),
+		last: neutralize(last),
+	};
 }
 
 function getLocation(string) {
-	if (!string) {
-		return {
-			name: '',
-			coords: { long: '', lat: '' }
-		};
-	}
 	const index = string.indexOf('>') + 1;
-	const [ long, lat ] = regExp.exec(string.substring(index))[1].replace(/\>/g, '> ').split(' ').filter(Boolean).map(o => o.replace(/[<>]/g, ''))
+	const [ long, lat ] = regexMatch(regex, string.substring(index)).replace(/\>/g, '> ').split(' ').filter(Boolean).map(o => o.replace(/[<>]/g, ''))
+
 	return {
-		name: regExp.exec(string.substring(0, index))[1],
-		coords: { long, lat }
+		name: regexMatch(regex, string.substring(0, index)),
+		coords: {
+			long: neutralize(long),
+			lat: neutralize(lat),
+		}
 	};
 }
 
@@ -31,15 +38,19 @@ function parseProfileString(string) {
 		followers: []
 	};
 
+	console.log("=====================================================");
 	console.log("[parsing] ", string);
 
 	const [ profile, followers ] = string.split('**');
 
 	// profile
 	const [ profileKey, id, nameString, locationString, imageId ] = profile.split('|');
-	const name = getName(nameString);
-	const location = getLocation(locationString);
-	parsed[profileKey] = { id, name, location, imageId };
+	parsed[profileKey] = {
+		id: neutralize(id),
+		name: getName(nameString),
+		locatoin: getLocation(locationString),
+		imageId: neutralize(imageId)
+	};
 
 	// followers
 	const index = followers.indexOf('|') + 1;
@@ -49,17 +60,31 @@ function parseProfileString(string) {
 			o = o.substring(1);
 		}
 		const [ id, nameString, locationString, imageId ] = o.split('|');
-		return { id, name: getName(nameString), locatoin: getLocation(locationString), imageId };
+		return {
+			id: neutralize(id),
+			name: getName(nameString),
+			locatoin: getLocation(locationString),
+			imageId: neutralize(imageId)
+		};
 	});
 
 	console.log("[parsed|json]", require('util').inspect(parsed, { depth: null }));
+	console.log("=====================================================");
+
+	return parsed;
 }
 
 const p1 = "profile|73241232|<Aamir><Hussain><Khan>|<Mumbai><<72.872075><19.075606>>|73241232.jpg**followers|54543342|<Anil><><Kapoor>|<Delhi><<23.23><12.07>>|54543342.jpg@@|12311334|<Amit><><Bansal>|<Bangalore><<><>>|12311334.jpg";
 const p2 = "profile|73241234|<Niharika><><Khan>|<Mumbai><<72.872075><19.075606>>|73241234.jpg**followers|54543343|<Amitabh><><>|<Dehradun><<><>>|54543343.jpg@@|22112211|<Piyush><><>||";
+const p3 = "profile|73241234|<Niharika><><>|<Mumbai><<><19.075606>>|73241234.jpg**followers|54543343|<><><>|<Dehradun><<><>>|54543343.jpg@@|22112211|<><><>|<><<><>>|";
+const p4 = "profile||<><><>|<><<><>>|**followers||<><><>|<><<><>>|@@||<><><>|<><<><>>|";
+const p5 = "profile||||**followers||||@@||||";
 
 parseProfileString(p1);
 parseProfileString(p2);
+parseProfileString(p3);
+parseProfileString(p4);
+parseProfileString(p5);
 
 // {
 // 	"id":"73241232",
