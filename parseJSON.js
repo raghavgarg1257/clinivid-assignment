@@ -76,42 +76,38 @@ parseProfileString(p2);
 // 		}
 // 	},
 // 	"imageId":"73241232.jpg",
-// 	"followers":[{
-// 		"id":"54543342",
-// 		"imageId":"54543342.jpg",
-// 		"name":{
-//
-// 			"first":"Anil",
-// 			"middle":"",
-// 			"last":"Kapoor"
-//
-// 		},
-// 		"location":{
-//
-// 			"name":"Delhi",
-// 			"coords":{
-// 				"long":23.23,
-// 				"lat":12.07
-// 			}}
-//
+// 	"followers":[
+// 		{
+// 			"id":"54543342",
+// 			"imageId":"54543342.jpg",
+// 			"name":{
+// 				"first":"Anil",
+// 				"middle":"",
+// 				"last":"Kapoor"
+// 			},
+// 			"location":{
+// 				"name":"Delhi",
+// 				"coords":{
+// 					"long":23.23,
+// 					"lat":12.07
+// 				}
+// 			}
 // 		},
 // 		{
 // 			"id":"12311334",
 // 			"imageId":"12311334.jpg",
 // 			"name":{
-//
 // 				"first":"Amit",
 // 				"middle":"",
 // 				"last":"Bansal"
-//
 // 			},
 // 			"location":{
-//
 // 				"name":"Bangalore",
 // 				"coords":{
 // 					"long":"",
 // 					"lat":""
-// 				}}
-//
-// 			}]
+// 				}
+// 			}
 // 		}
+// 	]
+// }
