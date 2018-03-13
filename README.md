@@ -5,8 +5,7 @@ The [problem statement](https://github.com/raghavgarg1257/clinivid-assignment/bl
 ## Problem 1 (Theoretical)
 Document [Problem1.md](https://github.com/raghavgarg1257/clinivid-assignment/blob/master/Problem1.md)
 
-Please refer the above doc for the answer.
-
+Please refer the above doc.
 
 ## Problem 2 (Coding)
 You just need JS Environment to run this code.
