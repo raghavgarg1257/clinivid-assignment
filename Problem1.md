@@ -15,11 +15,10 @@ numbers, and the platform takes 4 byte to store the integers.
 
 ### Thoughts
 
+Since we have 32MB RAM dedicated for this purpose and average size of image is 100KB, we can safely assume that we can load maximum 320 images in the RAM. Single request have no issues, we will get into problems when we take the case of concurrent requests. So, we will funnel the request using ***queues*** so that we are allowing only 320 request at a time.
+
 **A.**
-
--   Since we have 32MB RAM dedicated for this purpose and average size of image is 100KB, we can safely assume that we can load maximum 320 images in the RAM.
--   Single request have no issues, we will get into problems when we take the case of concurrent requests. So writing in this respect only.
-
-When user is uploading the image, the RAM will be used to temporarily store the image and then it will be moved to hard disk. Since we can have only 320 images at max in the RAM, so first we will funnel the request using ***queues*** so that we are allowing only 320 request at a time. Doing this will enable us to handle all the request with the existing resources. Now we will not store the image directly in the DB but we will only save the path where it is stored on the hard disk, so that whenever in future we need this image, we can easily fetch it.
+When user is uploading the image, the RAM will be used to temporarily store the image and then it will be moved to hard disk. Now we will not store the image directly in the DB but will save the image on hard disk in specific folder(namespaced) and only save path where image is stored on the hard disk or only save the name & keep common path in config.
 
 **B.**
+Now, we have a database system in which we have path/name of the image stored and we can fetch these images using the path and relevant file system module(`fs` in case of NodeJS) and serve it to the user as a stream(prefered) or as a whole(need to load full image in RAM first).
