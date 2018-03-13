@@ -46,7 +46,7 @@ function getFollowers(string) {
 	return string.split('@@').map(record => {
 		// profile should have only 4 parameters and to divide (n) things we need (n-1) dividers
 		if ((record.split('|').length - 1) !== 3 && record[0] === "|") {
-				record = record.substring(1);
+			record = record.substring(1);
 		}
 		return getProfile(record);
 	});
