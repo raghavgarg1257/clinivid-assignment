@@ -9,8 +9,12 @@ function neutralize(string) {
 	return string || '';
 }
 
+function parseArrowParanthesis(string) {
+	return string.replace(/\>/g, '> ').split(' ').filter(Boolean).map(o => o.replace(/[<>]/g, ''));
+}
+
 function getName(string) {
-	const [ first, middle, last ] = string.replace(/\>/g, '> ').split(' ').filter(Boolean).map(o => o.replace(/[<>]/g, ''));
+	const [ first, middle, last ] = parseArrowParanthesis(string);
 	return {
 		first: neutralize(first),
 		middle: neutralize(middle),
@@ -19,8 +23,9 @@ function getName(string) {
 }
 
 function getLocation(string) {
+	console.log("**********************************", string);
 	const index = string.indexOf('>') + 1;
-	const [ long, lat ] = regexMatch(regex, string.substring(index)).replace(/\>/g, '> ').split(' ').filter(Boolean).map(o => o.replace(/[<>]/g, ''))
+	const [ long, lat ] = parseArrowParanthesis(regexMatch(regex, string.substring(index)));
 
 	return {
 		name: regexMatch(regex, string.substring(0, index)),
@@ -28,6 +33,16 @@ function getLocation(string) {
 			long: neutralize(long),
 			lat: neutralize(lat),
 		}
+	};
+}
+
+function getProfile(string) {
+	const [ id, nameString, locationString, imageId ] = string.split('|');
+	return {
+		id: neutralize(id),
+		name: getName(nameString),
+		locatoin: getLocation(locationString),
+		imageId: neutralize(imageId)
 	};
 }
 
@@ -44,28 +59,17 @@ function parseProfileString(string) {
 	const [ profile, followers ] = string.split('**');
 
 	// profile
-	const [ profileKey, id, nameString, locationString, imageId ] = profile.split('|');
-	parsed[profileKey] = {
-		id: neutralize(id),
-		name: getName(nameString),
-		locatoin: getLocation(locationString),
-		imageId: neutralize(imageId)
-	};
+	const [ profileKey, ...restProfile ] = profile.split('|');
+	parsed[profileKey] = getProfile(restProfile.join('|'));
 
 	// followers
 	const index = followers.indexOf('|') + 1;
-	const [ followerKey, rest ] = [ followers.substring(0, index).replace(/\|/g, ''), followers.substring(index) ];
-	parsed[followerKey] = rest.split('@@').map(o => {
+	const [ followerKey, restFollowers ] = [ followers.substring(0, index).replace(/\|/g, ''), followers.substring(index) ];
+	parsed[followerKey] = restFollowers.split('@@').map(o => {
 		if (o[0] === '|') {
 			o = o.substring(1);
 		}
-		const [ id, nameString, locationString, imageId ] = o.split('|');
-		return {
-			id: neutralize(id),
-			name: getName(nameString),
-			locatoin: getLocation(locationString),
-			imageId: neutralize(imageId)
-		};
+		return getProfile(o);
 	});
 
 	console.log("[parsed|json]", require('util').inspect(parsed, { depth: null }));
