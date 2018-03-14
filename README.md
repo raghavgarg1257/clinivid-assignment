@@ -1,5 +1,7 @@
 # Clinivid Assignment
 
+This repo is the solution to the Clinivid Test.
+
 ## Problem 1 (Theoretical)
 Document [Problem1.md](https://github.com/raghavgarg1257/clinivid-assignment/blob/master/Problem1.md)
 
